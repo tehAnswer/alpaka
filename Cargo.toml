@@ -1,0 +1,11 @@
+[package]
+name = "alpaka"
+version = "0.1.0"
+license = "MIT"
+authors = ["tehAnswer <sergiorodriguezgijon@gmail.com>"]
+edition = "2018"
+description = "API client of alpaca.markets"
+repository = "https://github.com/tehAnswer/alpaka"
+readme = "README.md"
+
+[dependencies]
