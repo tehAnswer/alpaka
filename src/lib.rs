@@ -28,7 +28,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use surf::http_types::Method;
 use surf::middleware::HttpClient;
 use surf::url::Url;
-use surf::{Request, Response};
+use surf::Request;
 
 pub struct Alpaka {
   api_key: String,
@@ -49,7 +49,10 @@ impl Alpaka {
     Orders::new(Box::new(&self))
   }
 
-  pub(crate) async fn post<T: Serialize, U: DeserializeOwned>(
+  pub(crate) async fn post<
+    T: Serialize + std::fmt::Debug,
+    U: DeserializeOwned + std::fmt::Debug + std::default::Default,
+  >(
     &self,
     path: &str,
     data: &T,
@@ -57,8 +60,8 @@ impl Alpaka {
   ) -> Result<U, AlpakaError> {
     let url = self.url(custom_subdomain, path);
     let request = self.base_request(Method::Post, url).body_json(data)?;
-    let mut response = request.await.unwrap();
-    self.handle_response::<U>(&mut response).await
+    let result: Result<U, surf::Error> = request.recv_json().await;
+    result.map_err(AlpakaError::RequestError)
   }
 
   fn base_request(&self, method: Method, url: Url) -> Request<impl HttpClient> {
@@ -73,7 +76,7 @@ impl Alpaka {
     let subdomain = custom_subdomain
       .map(|x| x.to_string())
       .unwrap_or(self.mode.to_string());
-    let base_url: &str = "alpaka.news";
+    let base_url: &str = "alpaca.markets";
     let url = format!("https://{}.{}/{}", subdomain, base_url, path);
     Url::parse(&url).unwrap()
   }
@@ -85,17 +88,17 @@ impl Alpaka {
     Url::parse(&url).unwrap()
   }
 
-  async fn handle_response<U: DeserializeOwned>(
-    &self,
-    response: &mut Response,
-  ) -> Result<U, AlpakaError> {
-    let body = response.body_string().await;
-    if response.status().is_success() {
-      body
-        .map_err(|err| AlpakaError::Unexpected(format!("{}", err)))
-        .and_then(|payload| serde_json::from_str(&payload).map_err(AlpakaError::Json))
-    } else {
-      Err(AlpakaError::Unexpected(body.unwrap()))
-    }
-  }
+  // async fn handle_response<U: DeserializeOwned>(
+  //   &self,
+  //   response: &mut Response,
+  // ) -> Result<U, AlpakaError> {
+  //   let body = response.body_string().await;
+  //   if response.status().is_success() {
+  //     body
+  //       .map_err(|err| AlpakaError::Unexpected(format!("{}", err)))
+  //       .and_then(|payload| serde_json::from_str(&payload).map_err(AlpakaError::Json))
+  //   } else {
+  //     Err(AlpakaError::Unexpected(body.unwrap()))
+  //   }
+  // }
 }

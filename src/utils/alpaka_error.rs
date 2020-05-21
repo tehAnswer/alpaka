@@ -1,10 +1,18 @@
+#[derive(Debug)]
 pub enum AlpakaError {
-  Unexpected(String),
-  Json(serde_json::Error),
+  UnexpectedError(String),
+  JsonError(serde_json::Error),
+  RequestError(surf::Error),
 }
 
 impl From<serde_json::Error> for AlpakaError {
   fn from(err: serde_json::Error) -> AlpakaError {
-    AlpakaError::Json(err)
+    AlpakaError::JsonError(err)
+  }
+}
+
+impl From<surf::Error> for AlpakaError {
+  fn from(err: surf::Error) -> AlpakaError {
+    AlpakaError::RequestError(err)
   }
 }

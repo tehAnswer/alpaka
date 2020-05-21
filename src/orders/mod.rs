@@ -17,14 +17,10 @@ pub mod time_in_force;
 pub use time_in_force::*;
 
 use crate::{Alpaka, AlpakaError};
-use serde_derive::{Deserialize, Serialize};
 
 pub struct Orders<'a> {
   alpaka: Box<&'a Alpaka>,
 }
-
-#[derive(Deserialize, Default, Serialize)]
-pub struct Order {}
 
 impl<'a> Orders<'a> {
   pub fn new(alpaka: Box<&'a Alpaka>) -> Orders<'a> {
