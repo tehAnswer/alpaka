@@ -1,3 +1,4 @@
+extern crate mockito;
 extern crate surf;
 
 pub mod account;
@@ -8,7 +9,6 @@ pub mod account;
 pub mod assets;
 pub mod calendar;
 pub mod clock;
-pub mod market;
 pub mod orders;
 pub mod positions;
 pub mod streaming;
@@ -18,7 +18,6 @@ pub mod watchlist;
 pub use assets::*;
 pub use calendar::*;
 pub use clock::*;
-pub use market::*;
 pub use orders::*;
 pub use positions::*;
 pub use streaming::*;
@@ -69,11 +68,20 @@ impl Alpaka {
     request
   }
 
+  #[cfg(not(test))]
   fn url(&self, custom_subdomain: Option<&str>, path: &str) -> Url {
     let subdomain = custom_subdomain
       .map(|x| x.to_string())
       .unwrap_or(self.mode.to_string());
-    let url = format!("https:://{:?}.alpaca.markets/{}", subdomain, path);
+    let base_url: &str = "alpaka.news";
+    let url = format!("https://{}.{}/{}", subdomain, base_url, path);
+    Url::parse(&url).unwrap()
+  }
+
+  #[cfg(test)]
+  fn url(&self, _: Option<&str>, path: &str) -> Url {
+    let base_url = mockito::server_url();
+    let url = format!("{}/{}", base_url, path);
     Url::parse(&url).unwrap()
   }
 

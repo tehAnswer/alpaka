@@ -21,12 +21,12 @@ mod tests {
   use crate::AlpakaMode;
 
   #[test]
-  pub fn alpaka_mode_paper_to_string() {
+  pub fn test_alpaka_mode_paper_to_string() {
     assert_eq!(&AlpakaMode::Paper.to_string(), "paper-api")
   }
 
   #[test]
-  pub fn alpaka_mode_live_to_string() {
+  pub fn test_alpaka_mode_live_to_string() {
     assert_eq!(&AlpakaMode::Live.to_string(), "live")
   }
 }
