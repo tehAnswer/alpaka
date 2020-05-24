@@ -1,4 +1,5 @@
 use crate::utils::alpaka_deserializers::{to_i64, to_optional_f64};
+use crate::utils::alpaka_serializers::{opt_to_string, to_string};
 use crate::{OrderStatus, OrderType, Side, TimeInForce};
 use serde_derive::{Deserialize, Serialize};
 
@@ -19,20 +20,20 @@ pub struct Order {
   pub asset_id: String,
   pub symbol: String,
   pub asset_class: String,
-  #[serde(deserialize_with = "to_i64")]
+  #[serde(deserialize_with = "to_i64", serialize_with = "to_string")]
   pub qty: i64,
-  #[serde(deserialize_with = "to_i64")]
+  #[serde(deserialize_with = "to_i64", serialize_with = "to_string")]
   pub filled_qty: i64,
   pub order_class: Option<String>,
   #[serde(rename = "type")]
   pub order_type: OrderType,
   pub side: Side,
   pub time_in_force: TimeInForce,
-  #[serde(deserialize_with = "to_optional_f64")]
+  #[serde(deserialize_with = "to_optional_f64", serialize_with = "opt_to_string")]
   pub limit_price: Option<f64>,
-  #[serde(deserialize_with = "to_optional_f64")]
+  #[serde(deserialize_with = "to_optional_f64", serialize_with = "opt_to_string")]
   pub stop_price: Option<f64>,
-  #[serde(deserialize_with = "to_optional_f64")]
+  #[serde(deserialize_with = "to_optional_f64", serialize_with = "opt_to_string")]
   pub filled_avg_price: Option<f64>,
   pub status: OrderStatus,
   pub extended_hours: bool,

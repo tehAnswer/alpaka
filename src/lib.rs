@@ -75,7 +75,7 @@ impl Alpaka {
   fn url(&self, custom_subdomain: Option<&str>, path: &str) -> Url {
     let subdomain = custom_subdomain
       .map(|x| x.to_string())
-      .unwrap_or(self.mode.to_string());
+      .unwrap_or_else(|| self.mode.to_string());
     let base_url: &str = "alpaca.markets";
     let url = format!("https://{}.{}/{}", subdomain, base_url, path);
     Url::parse(&url).unwrap()
@@ -87,18 +87,4 @@ impl Alpaka {
     let url = format!("{}/{}", base_url, path);
     Url::parse(&url).unwrap()
   }
-
-  // async fn handle_response<U: DeserializeOwned>(
-  //   &self,
-  //   response: &mut Response,
-  // ) -> Result<U, AlpakaError> {
-  //   let body = response.body_string().await;
-  //   if response.status().is_success() {
-  //     body
-  //       .map_err(|err| AlpakaError::Unexpected(format!("{}", err)))
-  //       .and_then(|payload| serde_json::from_str(&payload).map_err(AlpakaError::Json))
-  //   } else {
-  //     Err(AlpakaError::Unexpected(body.unwrap()))
-  //   }
-  // }
 }

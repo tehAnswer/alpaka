@@ -1,5 +1,7 @@
+use crate::AlpakaError;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum Side {
@@ -23,6 +25,19 @@ impl Display for Side {
     };
 
     write!(f, "{:?}", value)
+  }
+}
+
+impl FromStr for Side {
+  type Err = AlpakaError;
+  fn from_str(
+    s: &str,
+  ) -> std::result::Result<crate::orders::side::Side, crate::utils::alpaka_error::AlpakaError> {
+    match s {
+      "buy" => Ok(Side::Buy),
+      "sell" => Ok(Side::Sell),
+      _ => Err(AlpakaError::InvalidSide(s.to_owned())),
+    }
   }
 }
 
@@ -57,5 +72,20 @@ mod tests {
   #[test]
   fn test_serialize_side_default() {
     assert_eq!(Side::default(), Side::Buy);
+  }
+
+  #[test]
+  fn test_from_str_buy() {
+    assert_eq!("buy".parse::<Side>().unwrap(), Side::Buy)
+  }
+
+  #[test]
+  fn test_from_str_sell() {
+    assert_eq!("sell".parse::<Side>().unwrap(), Side::Sell)
+  }
+
+  #[test]
+  fn test_from_str_error() {
+    assert_eq!("_".parse::<Side>().is_err(), true)
   }
 }

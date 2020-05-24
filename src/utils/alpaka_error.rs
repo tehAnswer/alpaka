@@ -3,6 +3,10 @@ pub enum AlpakaError {
   UnexpectedError(String),
   JsonError(serde_json::Error),
   RequestError(surf::Error),
+  InvalidOrderStatus(String),
+  InvalidOrderType(String),
+  InvalidSide(String),
+  InvalidTimeInForce(String),
 }
 
 impl From<serde_json::Error> for AlpakaError {

@@ -1,5 +1,7 @@
+use crate::AlpakaError;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum OrderType {
@@ -29,6 +31,24 @@ impl Display for OrderType {
     };
 
     write!(f, "{:?}", value)
+  }
+}
+
+impl FromStr for OrderType {
+  type Err = AlpakaError;
+  fn from_str(
+    s: &str,
+  ) -> std::result::Result<
+    crate::orders::order_type::OrderType,
+    crate::utils::alpaka_error::AlpakaError,
+  > {
+    match s {
+      "market" => Ok(OrderType::Market),
+      "limit" => Ok(OrderType::Limit),
+      "stop" => Ok(OrderType::Stop),
+      "stop_limit" => Ok(OrderType::StopLimit),
+      _ => Err(AlpakaError::InvalidOrderType(s.to_owned())),
+    }
   }
 }
 
@@ -87,5 +107,29 @@ mod tests {
   #[test]
   fn test_serialize_side_default() {
     assert_eq!(OrderType::default(), OrderType::Market);
+  }
+
+  #[test]
+  fn test_from_str_market() {
+    assert_eq!("market".parse::<OrderType>().unwrap(), OrderType::Market);
+  }
+  #[test]
+  fn test_from_str_limit() {
+    assert_eq!("limit".parse::<OrderType>().unwrap(), OrderType::Limit);
+  }
+  #[test]
+  fn test_from_str_stop() {
+    assert_eq!("stop".parse::<OrderType>().unwrap(), OrderType::Stop);
+  }
+  #[test]
+  fn test_from_str_stop_limit() {
+    assert_eq!(
+      "stop_limit".parse::<OrderType>().unwrap(),
+      OrderType::StopLimit
+    );
+  }
+  #[test]
+  fn test_from_str_error() {
+    assert_eq!("_".parse::<OrderType>().is_err(), true);
   }
 }

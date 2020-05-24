@@ -1,7 +1,7 @@
 extern crate alpaka;
 extern crate async_std;
 
-use alpaka::{Alpaka, AlpakaError, AlpakaMode, NewOrder, Order, Side};
+use alpaka::{Alpaka, AlpakaError, AlpakaMode, NewOrder, Order};
 use async_std::task;
 
 fn main() -> Result<(), AlpakaError> {
@@ -14,7 +14,7 @@ fn main() -> Result<(), AlpakaError> {
   let new_order = NewOrder {
     symbol: String::from("CCL"),
     qty: 1,
-    side: Side::Buy,
+    side: "buy".parse().unwrap(),
     ..Default::default()
   };
 

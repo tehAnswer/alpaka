@@ -27,8 +27,8 @@ impl<'a> Orders<'a> {
     Orders { alpaka }
   }
 
-  // pub fn retrieve(&self) -> Result<Vec<Order>, AlpakaError> {
-  //   Ok(Vec::new())
+  // pub fn all(&self, params: Option<OrdersFilter>) -> Result<Vec<Order>, AlpakaError> {
+  //   Ok(vec![])
   // }
 
   pub async fn create(&self, new_order: NewOrder) -> Result<Order, AlpakaError> {

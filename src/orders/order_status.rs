@@ -1,12 +1,14 @@
+use crate::AlpakaError;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum OrderStatus {
   #[serde(rename = "new")]
   New,
-  #[serde(rename = "partially_field")]
-  PartiallyField,
+  #[serde(rename = "partially_filled")]
+  PartiallyFilled,
   #[serde(rename = "filled")]
   Filled,
   #[serde(rename = "done_for_day")]
@@ -47,7 +49,7 @@ impl Display for OrderStatus {
   fn fmt(&self, f: &mut Formatter) -> Result {
     let value = match self {
       OrderStatus::New => "new",
-      OrderStatus::PartiallyField => "partially_field",
+      OrderStatus::PartiallyFilled => "partially_filled",
       OrderStatus::Filled => "filled",
       OrderStatus::DoneForDay => "done_for_day",
       OrderStatus::Canceled => "canceled",
@@ -68,6 +70,36 @@ impl Display for OrderStatus {
   }
 }
 
+impl FromStr for OrderStatus {
+  type Err = AlpakaError;
+  fn from_str(
+    s: &str,
+  ) -> std::result::Result<
+    crate::orders::order_status::OrderStatus,
+    crate::utils::alpaka_error::AlpakaError,
+  > {
+    match s {
+      "new" => Ok(OrderStatus::New),
+      "partially_filled" => Ok(OrderStatus::PartiallyFilled),
+      "filled" => Ok(OrderStatus::Filled),
+      "done_for_day" => Ok(OrderStatus::DoneForDay),
+      "canceled" => Ok(OrderStatus::Canceled),
+      "expired" => Ok(OrderStatus::Expired),
+      "replaced" => Ok(OrderStatus::Replaced),
+      "pending_cancel" => Ok(OrderStatus::PendingCancel),
+      "pending_replace" => Ok(OrderStatus::PendingReplace),
+      "accepted" => Ok(OrderStatus::Accepted),
+      "pending_new" => Ok(OrderStatus::PendingNew),
+      "accepted_for_bidding" => Ok(OrderStatus::AcceptedForBidding),
+      "stopped" => Ok(OrderStatus::Stopped),
+      "rejected" => Ok(OrderStatus::Rejected),
+      "suspended" => Ok(OrderStatus::Suspended),
+      "calculated" => Ok(OrderStatus::Calculated),
+      _ => Err(AlpakaError::InvalidOrderStatus(s.to_owned())),
+    }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use crate::OrderStatus;
@@ -80,8 +112,8 @@ mod tests {
 
   #[test]
   fn test_deserialize_order_status_limit() {
-    let order_status: OrderStatus = serde_json::from_str("\"partially_field\"").unwrap();
-    assert_eq!(order_status, OrderStatus::PartiallyField);
+    let order_status: OrderStatus = serde_json::from_str("\"partially_filled\"").unwrap();
+    assert_eq!(order_status, OrderStatus::PartiallyFilled);
   }
 
   #[test]
@@ -173,8 +205,8 @@ mod tests {
 
   #[test]
   fn test_serialize_order_status_limit() {
-    let json = serde_json::to_string(&OrderStatus::PartiallyField).unwrap();
-    assert_eq!(&json, "\"partially_field\"");
+    let json = serde_json::to_string(&OrderStatus::PartiallyFilled).unwrap();
+    assert_eq!(&json, "\"partially_filled\"");
   }
 
   #[test]
@@ -253,5 +285,120 @@ mod tests {
   #[test]
   fn test_serialize_side_default() {
     assert_eq!(OrderStatus::default(), OrderStatus::New);
+  }
+  #[test]
+
+  fn test_from_str_new() {
+    assert_eq!("new".parse::<OrderStatus>().unwrap(), OrderStatus::New)
+  }
+  #[test]
+  fn test_from_str_partially_filled() {
+    assert_eq!(
+      "partially_filled".parse::<OrderStatus>().unwrap(),
+      OrderStatus::PartiallyFilled
+    )
+  }
+  #[test]
+  fn test_from_str_filled() {
+    assert_eq!(
+      "filled".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Filled
+    )
+  }
+  #[test]
+  fn test_from_str_done_for_day() {
+    assert_eq!(
+      "done_for_day".parse::<OrderStatus>().unwrap(),
+      OrderStatus::DoneForDay
+    )
+  }
+  #[test]
+  fn test_from_str_canceled() {
+    assert_eq!(
+      "canceled".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Canceled
+    )
+  }
+  #[test]
+  fn test_from_str_expired() {
+    assert_eq!(
+      "expired".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Expired
+    )
+  }
+  #[test]
+  fn test_from_str_replaced() {
+    assert_eq!(
+      "replaced".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Replaced
+    )
+  }
+  #[test]
+  fn test_from_str_pending_cancel() {
+    assert_eq!(
+      "pending_cancel".parse::<OrderStatus>().unwrap(),
+      OrderStatus::PendingCancel
+    )
+  }
+  #[test]
+  fn test_from_str_pending_replace() {
+    assert_eq!(
+      "pending_replace".parse::<OrderStatus>().unwrap(),
+      OrderStatus::PendingReplace
+    )
+  }
+  #[test]
+  fn test_from_str_accepted() {
+    assert_eq!(
+      "accepted".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Accepted
+    )
+  }
+  #[test]
+  fn test_from_str_pending_new() {
+    assert_eq!(
+      "pending_new".parse::<OrderStatus>().unwrap(),
+      OrderStatus::PendingNew
+    )
+  }
+  #[test]
+  fn test_from_str_accepted_for_bidding() {
+    assert_eq!(
+      "accepted_for_bidding".parse::<OrderStatus>().unwrap(),
+      OrderStatus::AcceptedForBidding
+    )
+  }
+  #[test]
+  fn test_from_str_stopped() {
+    assert_eq!(
+      "stopped".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Stopped
+    )
+  }
+  #[test]
+  fn test_from_str_rejected() {
+    assert_eq!(
+      "rejected".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Rejected
+    )
+  }
+  #[test]
+  fn test_from_str_suspended() {
+    assert_eq!(
+      "suspended".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Suspended
+    )
+  }
+  #[test]
+  fn test_from_str_calculated() {
+    assert_eq!(
+      "calculated".parse::<OrderStatus>().unwrap(),
+      OrderStatus::Calculated
+    )
+  }
+
+  #[test]
+  fn test_from_str_error() {
+    assert_eq!("_".parse::<OrderStatus>().is_err(), true)
   }
 }

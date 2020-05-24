@@ -11,13 +11,12 @@ pub fn to_optional_f64<'de, D: Deserializer<'de>>(
 ) -> Result<Option<f64>, D::Error> {
   let opt: Option<String> = Deserialize::deserialize(deserializer)?;
 
-  if opt.is_none() {
-    return Ok(None);
-  } else {
-    let raw_value = opt.unwrap();
-    return raw_value
+  if let Some(raw_value) = opt {
+    raw_value
       .parse::<f64>()
-      .map(|value| Some(value))
-      .map_err(serde::de::Error::custom);
+      .map(Some)
+      .map_err(serde::de::Error::custom)
+  } else {
+    Ok(None)
   }
 }
