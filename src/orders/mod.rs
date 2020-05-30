@@ -43,6 +43,14 @@ impl<'a> Orders<'a> {
       .await
   }
 
+  pub async fn get(&self, order_id: &str) -> Result<Order, AlpakaError> {
+    let client = *self.alpaka;
+    let path = format!("v2/orders/{}", order_id);
+    client
+      .get::<Option<OrdersFilter>, Order>(&path, &None, None)
+      .await
+  }
+
   pub async fn create(&self, new_order: NewOrder) -> Result<Order, AlpakaError> {
     let client = *self.alpaka;
     client
@@ -107,6 +115,26 @@ mod tests {
       .create();
 
     let result = task::block_on(async { orders.all(None).await });
+    mockz.expect(1).assert();
+    assert_eq!(result.is_ok(), true);
+  }
+
+  #[test]
+  fn test_orders_get() {
+    let alpaka = Alpaka::new(
+      String::from("api_key"),
+      String::from("secret"),
+      AlpakaMode::Paper,
+    );
+
+    let orders = alpaka.orders();
+    let returned_orders = Order::default();
+    let mockz = mock("GET", "/v2/orders/test")
+      .match_query(Matcher::Exact(String::from("")))
+      .with_body(to_json(&returned_orders))
+      .create();
+
+    let result = task::block_on(async { orders.get("test").await });
     mockz.expect(1).assert();
     assert_eq!(result.is_ok(), true);
   }

@@ -1,7 +1,7 @@
 extern crate alpaka;
 extern crate async_std;
 
-use alpaka::{Alpaka, AlpakaError, AlpakaMode, OrdersFilter};
+use alpaka::{Alpaka, AlpakaError, AlpakaMode, Order, OrdersFilter};
 use async_std::task;
 
 fn main() -> Result<(), AlpakaError> {
@@ -16,6 +16,14 @@ fn main() -> Result<(), AlpakaError> {
     ..Default::default()
   };
 
-  task::block_on(async { println!("{:?}", orders.all(Some(order_filters)).await) });
+  task::block_on(async {
+    let returned_orders: Vec<Order> = orders.all(Some(order_filters)).await.unwrap();
+    println!("returned_orders.len() => {}", returned_orders.len());
+
+    if let Some(first_order) = returned_orders.get(0) {
+      let order: Order = orders.get(&first_order.id).await.unwrap();
+      println!("{:#?}", order)
+    }
+  });
   Ok(())
 }
