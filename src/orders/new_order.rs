@@ -1,19 +1,19 @@
 use crate::utils::alpaka_serializers::to_string;
 use crate::{OrderType, Side, TimeInForce};
-use serde_derive::Serialize;
+use serde_derive::{Deserialize, Serialize};
 
-#[derive(Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct TakeProfit {
   pub limit_price: f64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StopLoss {
   pub stop_price: f64,
   pub limit_price: Option<f64>,
 }
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Deserialize, Serialize, Default, Debug)]
 pub struct NewOrder {
   pub symbol: String,
   #[serde(serialize_with = "to_string")]

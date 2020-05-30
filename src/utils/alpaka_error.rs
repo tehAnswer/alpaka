@@ -7,6 +7,9 @@ pub enum AlpakaError {
   InvalidOrderType(String),
   InvalidSide(String),
   InvalidTimeInForce(String),
+  InvalidOrdersStatusFilter(String),
+  InvalidOrdersDirectionFilter(String),
+  UrlEncodeError(serde_urlencoded::ser::Error),
 }
 
 impl From<serde_json::Error> for AlpakaError {

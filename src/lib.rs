@@ -1,3 +1,4 @@
+extern crate chrono;
 extern crate mockito;
 extern crate surf;
 
@@ -60,6 +61,24 @@ impl Alpaka {
   ) -> Result<U, AlpakaError> {
     let url = self.url(custom_subdomain, path);
     let request = self.base_request(Method::Post, url).body_json(data)?;
+    let result: Result<U, surf::Error> = request.recv_json().await;
+    result.map_err(AlpakaError::RequestError)
+  }
+
+  pub(crate) async fn get<
+    T: Serialize + std::fmt::Debug,
+    U: DeserializeOwned + std::fmt::Debug + std::default::Default,
+  >(
+    &self,
+    path: &str,
+    data: &T,
+    custom_subdomain: Option<&str>,
+  ) -> Result<U, AlpakaError> {
+    let url = self.url(custom_subdomain, path);
+    let request = self
+      .base_request(Method::Get, url)
+      .set_query(&data)
+      .map_err(AlpakaError::UrlEncodeError)?;
     let result: Result<U, surf::Error> = request.recv_json().await;
     result.map_err(AlpakaError::RequestError)
   }

@@ -10,6 +10,15 @@ pub use order_type::*;
 pub mod order_status;
 pub use order_status::*;
 
+pub mod orders_filter;
+pub use orders_filter::*;
+
+pub mod orders_status_filter;
+pub use orders_status_filter::*;
+
+pub mod orders_direction_filter;
+pub use orders_direction_filter::*;
+
 pub mod side;
 pub use side::*;
 
@@ -27,9 +36,12 @@ impl<'a> Orders<'a> {
     Orders { alpaka }
   }
 
-  // pub fn all(&self, params: Option<OrdersFilter>) -> Result<Vec<Order>, AlpakaError> {
-  //   Ok(vec![])
-  // }
+  pub async fn all(&self, params: Option<OrdersFilter>) -> Result<Vec<Order>, AlpakaError> {
+    let client = *self.alpaka;
+    client
+      .get::<Option<OrdersFilter>, Vec<Order>>("v2/orders", &params, None)
+      .await
+  }
 
   pub async fn create(&self, new_order: NewOrder) -> Result<Order, AlpakaError> {
     let client = *self.alpaka;
@@ -75,6 +87,26 @@ mod tests {
       .create();
 
     let result = task::block_on(async { orders.create(new_order).await });
+    mockz.expect(1).assert();
+    assert_eq!(result.is_ok(), true);
+  }
+
+  #[test]
+  fn test_orders_all() {
+    let alpaka = Alpaka::new(
+      String::from("api_key"),
+      String::from("secret"),
+      AlpakaMode::Paper,
+    );
+
+    let orders = alpaka.orders();
+    let returned_orders = vec![Order::default()];
+    let mockz = mock("GET", "/v2/orders")
+      .match_query(Matcher::Exact(String::from("")))
+      .with_body(to_json(&returned_orders))
+      .create();
+
+    let result = task::block_on(async { orders.all(None).await });
     mockz.expect(1).assert();
     assert_eq!(result.is_ok(), true);
   }
