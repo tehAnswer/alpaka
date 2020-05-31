@@ -6,3 +6,5 @@ pub use alpaka_error::*;
 
 pub mod alpaka_mode;
 pub use alpaka_mode::*;
+
+pub type NoBody = Option<i32>;

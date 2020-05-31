@@ -32,7 +32,7 @@ mod tests {
   }
 
   #[test]
-  fn test_orders_get() {
+  fn test_accounts_get() {
     let alpaka = Alpaka::new(
       String::from("api_key"),
       String::from("secret"),

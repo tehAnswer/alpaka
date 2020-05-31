@@ -55,6 +55,10 @@ impl Alpaka {
     Accounts::new(Box::new(&self))
   }
 
+  pub fn assets(&self) -> Assets {
+    Assets::new(Box::new(&self))
+  }
+
   pub(crate) async fn post<
     T: Serialize + std::fmt::Debug,
     U: DeserializeOwned + std::fmt::Debug + std::default::Default,
