@@ -20,3 +20,13 @@ pub fn to_optional_f64<'de, D: Deserializer<'de>>(
     Ok(None)
   }
 }
+
+pub fn to_f64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64, D::Error> {
+  let opt: Option<String> = Deserialize::deserialize(deserializer)?;
+
+  if let Some(raw_value) = opt {
+    raw_value.parse::<f64>().map_err(serde::de::Error::custom)
+  } else {
+    Err(serde::de::Error::custom("Nothing to deserialize as f64"))
+  }
+}

@@ -2,7 +2,7 @@ extern crate chrono;
 extern crate mockito;
 extern crate surf;
 
-pub mod account;
+pub mod accounts;
 // pub mod account_configurations;
 // pub mod account_updates;
 // pub mod account_activities;
@@ -16,6 +16,7 @@ pub mod streaming;
 pub mod utils;
 pub mod watchlist;
 
+pub use accounts::*;
 pub use assets::*;
 pub use calendar::*;
 pub use clock::*;
@@ -48,6 +49,10 @@ impl Alpaka {
 
   pub fn orders(&self) -> Orders {
     Orders::new(Box::new(&self))
+  }
+
+  pub fn accounts(&self) -> Accounts {
+    Accounts::new(Box::new(&self))
   }
 
   pub(crate) async fn post<
