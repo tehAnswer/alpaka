@@ -59,6 +59,10 @@ impl Alpaka {
     Assets::new(Box::new(&self))
   }
 
+  pub fn positions(&self) -> Positions {
+    Positions::new(Box::new(&self))
+  }
+
   pub(crate) async fn post<
     T: Serialize + std::fmt::Debug,
     U: DeserializeOwned + std::fmt::Debug + std::default::Default,
@@ -86,6 +90,24 @@ impl Alpaka {
     let url = self.url(custom_subdomain, path);
     let request = self
       .base_request(Method::Get, url)
+      .set_query(&data)
+      .map_err(AlpakaError::UrlEncodeError)?;
+    let result: Result<U, surf::Error> = request.recv_json().await;
+    result.map_err(AlpakaError::RequestError)
+  }
+
+  pub(crate) async fn delete<
+    T: Serialize + std::fmt::Debug,
+    U: DeserializeOwned + std::fmt::Debug + std::default::Default,
+  >(
+    &self,
+    path: &str,
+    data: &T,
+    custom_subdomain: Option<&str>,
+  ) -> Result<U, AlpakaError> {
+    let url = self.url(custom_subdomain, path);
+    let request = self
+      .base_request(Method::Delete, url)
       .set_query(&data)
       .map_err(AlpakaError::UrlEncodeError)?;
     let result: Result<U, surf::Error> = request.recv_json().await;
