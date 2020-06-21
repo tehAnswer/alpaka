@@ -1,4 +1,5 @@
 extern crate chrono;
+extern crate http_types;
 extern crate mockito;
 extern crate surf;
 
@@ -26,6 +27,7 @@ pub use streaming::*;
 pub use utils::*;
 pub use watchlist::*;
 
+use http_types::StatusCode;
 use serde::{de::DeserializeOwned, Serialize};
 use surf::http_types::Method;
 use surf::middleware::HttpClient;
@@ -63,6 +65,10 @@ impl Alpaka {
     Positions::new(Box::new(&self))
   }
 
+  pub fn watchlists(&self) -> Watchlists {
+    Watchlists::new(Box::new(&self))
+  }
+
   pub(crate) async fn post<
     T: Serialize + std::fmt::Debug,
     U: DeserializeOwned + std::fmt::Debug + std::default::Default,
@@ -74,8 +80,7 @@ impl Alpaka {
   ) -> Result<U, AlpakaError> {
     let url = self.url(custom_subdomain, path);
     let request = self.base_request(Method::Post, url).body_json(data)?;
-    let result: Result<U, surf::Error> = request.recv_json().await;
-    result.map_err(AlpakaError::RequestError)
+    self.execute_request(request).await
   }
 
   pub(crate) async fn get<
@@ -92,8 +97,7 @@ impl Alpaka {
       .base_request(Method::Get, url)
       .set_query(&data)
       .map_err(AlpakaError::UrlEncodeError)?;
-    let result: Result<U, surf::Error> = request.recv_json().await;
-    result.map_err(AlpakaError::RequestError)
+    self.execute_request(request).await
   }
 
   pub(crate) async fn delete<
@@ -110,14 +114,45 @@ impl Alpaka {
       .base_request(Method::Delete, url)
       .set_query(&data)
       .map_err(AlpakaError::UrlEncodeError)?;
-    let result: Result<U, surf::Error> = request.recv_json().await;
-    result.map_err(AlpakaError::RequestError)
+    self.execute_request(request).await
+  }
+
+  pub(crate) async fn put<
+    T: Serialize + std::fmt::Debug,
+    U: DeserializeOwned + std::fmt::Debug + std::default::Default,
+  >(
+    &self,
+    path: &str,
+    data: &T,
+    custom_subdomain: Option<&str>,
+  ) -> Result<U, AlpakaError> {
+    let url = self.url(custom_subdomain, path);
+    let request = self.base_request(Method::Put, url).body_json(data)?;
+    self.execute_request(request).await
+  }
+
+  async fn execute_request<U: DeserializeOwned + std::fmt::Debug + std::default::Default>(
+    &self,
+    request: Request<impl HttpClient>,
+  ) -> Result<U, AlpakaError> {
+    let mut response: surf::Response = request.await.map_err(AlpakaError::RequestError)?;
+
+    if response.status() == StatusCode::NoContent {
+      Ok(U::default())
+    } else if response.status().is_success() {
+      response.body_json().await.map_err(AlpakaError::IOError)
+    } else {
+      let error_details: APIErrorDetails =
+        response.body_json().await.map_err(AlpakaError::IOError)?;
+      let error = AlpakaError::APIError(error_details.code, error_details.message);
+      Err(error)
+    }
   }
 
   fn base_request(&self, method: Method, url: Url) -> Request<impl HttpClient> {
     let mut request = Request::new(method, url);
-    request = request.set_header("APCA-API-KEY-ID".parse().unwrap(), &self.api_key);
-    request = request.set_header("APCA-API-SECRET-KEY".parse().unwrap(), &self.api_secret);
+    request = request.set_header("APCA-API-KEY-ID", self.api_key.to_owned());
+    request = request.set_header("APCA-API-SECRET-KEY", self.api_secret.to_owned());
     request
   }
 

@@ -1,7 +1,7 @@
 extern crate alpaka;
 extern crate async_std;
 
-use alpaka::{Alpaka, AlpakaError, AlpakaMode, NewOrder, Order};
+use alpaka::{Alpaka, AlpakaError, AlpakaMode};
 use async_std::task;
 
 fn main() -> Result<(), AlpakaError> {
