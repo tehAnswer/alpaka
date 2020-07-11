@@ -9,7 +9,7 @@ pub mod accounts;
 // pub mod account_activities;
 // pub mod portfolio_history;
 pub mod assets;
-pub mod calendar;
+pub mod calendars;
 pub mod clock;
 pub mod orders;
 pub mod positions;
@@ -19,7 +19,7 @@ pub mod watchlist;
 
 pub use accounts::*;
 pub use assets::*;
-pub use calendar::*;
+pub use calendars::*;
 pub use clock::*;
 pub use orders::*;
 pub use positions::*;
@@ -67,6 +67,10 @@ impl Alpaka {
 
   pub fn watchlists(&self) -> Watchlists {
     Watchlists::new(Box::new(&self))
+  }
+
+  pub fn calendars(&self) -> Calendars {
+    Calendars::new(Box::new(&self))
   }
 
   pub(crate) async fn post<
