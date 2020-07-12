@@ -33,7 +33,7 @@ mod tests {
     serde_json::to_string(data).unwrap()
   }
   #[test]
-  fn test_assets_get() {
+  fn test_calendar_get() {
     let alpaka = Alpaka::new(
       String::from("api_key"),
       String::from("secret"),
@@ -41,10 +41,10 @@ mod tests {
     );
 
     let calendars = alpaka.calendars();
-    let return_asset = Calendar::default();
+    let return_calendar = Calendar::default();
     let mockz = mock("GET", "/v2/calendar")
       .match_query(Matcher::Exact(String::from("")))
-      .with_body(to_json(&vec![return_asset]))
+      .with_body(to_json(&vec![return_calendar]))
       .create();
 
     let result = task::block_on(async { calendars.get().await });

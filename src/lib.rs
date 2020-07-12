@@ -73,6 +73,10 @@ impl Alpaka {
     Calendars::new(Box::new(&self))
   }
 
+  pub fn clock(&self) -> Clock {
+    Clock::new(Box::new(&self))
+  }
+
   pub(crate) async fn post<
     T: Serialize + std::fmt::Debug,
     U: DeserializeOwned + std::fmt::Debug + std::default::Default,
