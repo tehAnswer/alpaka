@@ -1,6 +1,6 @@
 ![image](https://user-images.githubusercontent.com/4346014/87255815-4b8aa900-c48e-11ea-9dc6-06f5139921ed.png)
 
-`alpaka` is a crate (i.e., Rust library) that allows you to trade through the [Alpaca](alpaca.markets) API-broker. The library is powered by [surf]() & compatible with [async-std]()'s crates suit.
+`alpaka` is a crate (i.e., Rust library) that allows you to trade through the [Alpaca](alpaca.markets) API-broker. The library is powered by [surf](https://github.com/http-rs/surf) and therefore compatible with [async-std](https://github.com/async-rs/async-std)'s crates suit.
 
 This client implements the vast majority of Alpaca's API endpoints, including:
 
